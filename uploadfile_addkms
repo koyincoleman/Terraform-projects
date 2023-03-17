@@ -1,0 +1,33 @@
+provider "aws" {
+  region = "us-east-2"
+}
+
+
+#Create a bucket
+resource "aws_s3_bucket" "mybucket1016" {
+    bucket = "mybucket1016"
+
+    tags = {
+        Name = "My test bucket"
+        Environment = "Dev"
+    }
+}
+
+#upload a file
+resource "aws_s3_object" "object" {
+    bucket = "mybucket1016"
+    key = "new_object_key"
+    source = "K8s.txt"
+}
+
+resource "aws_kms_key" "mykms" {
+  description             = "KMS key 1"
+  deletion_window_in_days = 7
+}
+
+resource "aws_s3_object" "kmsexample" {
+  key        = "someobject"
+  bucket     = aws_s3_bucket.mybucket1016.id
+  source     = "K8s.txt"
+  kms_key_id = aws_kms_key.mykms.arn
+}
